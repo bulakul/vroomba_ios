@@ -1,0 +1,24 @@
+PODS:
+  - BlueSocket (1.0.46)
+  - Socket.IO-Client-Swift (15.1.0):
+    - Starscream (~> 3.1)
+  - Starscream (3.1.0)
+
+DEPENDENCIES:
+  - BlueSocket
+  - Socket.IO-Client-Swift (~> 15.1.0)
+
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - BlueSocket
+    - Socket.IO-Client-Swift
+    - Starscream
+
+SPEC CHECKSUMS:
+  BlueSocket: 6010272ac622367b8461f26280e22c693715726f
+  Socket.IO-Client-Swift: 7cb44c0ffb86e158cee32d0642d30ec5fdcf8f61
+  Starscream: 08172b481e145289c4930cb567230fb55897cfa4
+
+PODFILE CHECKSUM: e5b8a19fdd74ae42d012ecea80a01af893229a62
+
+COCOAPODS: 1.7.2
