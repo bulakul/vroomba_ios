@@ -18,13 +18,13 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, UI
     @IBOutlet var sceneView: ARSCNView!
     @IBOutlet weak var labelCoordinates: UILabel!
     @IBOutlet weak var labelOrientation: UILabel!
-    @IBOutlet weak var socketIP: UITextField!
+    @IBOutlet weak var labelConnectedIP: UILabel!
+    @IBOutlet weak var portIP: UITextField!
+    @IBOutlet weak var port: UITextField!
     
     let ARConfig = ARWorldTrackingConfiguration()
-    lazy var manager = SocketManager(socketURL: URL(string: "http://0.0.0.0:3000")!, config: [.log(true), .compress])
-    lazy var socket: SocketIOClient = manager.defaultSocket
-    var isConnectCoord: Bool = false
-    var isConnectCam: Bool = false
+    let redis = Redis()
+    var isConnect: Bool = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,7 +33,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, UI
         //self.sceneView.debugOptions = [ARSCNDebugOptions.showWorldOrigin]
         self.sceneView.session.run(self.ARConfig)
         self.sceneView.session.delegate = self
-        self.socketIP.delegate = self
+        self.port.delegate = self
         
         UIApplication.shared.isIdleTimerDisabled = true
         
@@ -79,92 +79,85 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, UI
         self.sceneView.session.run(self.ARConfig, options: [.resetTracking, .removeExistingAnchors])
     }
     
-    @IBAction func connectCam(_ sender: UIButton) {
-        
-        if sender.title(for: []) == "Connect Cam" {
-            self.isConnectCam = true
-            if !self.isConnectCoord {
-                self.socket.connect()
-            }
-            sender.setTitle("Disconnect Cam", for: [])
-        } else {
-            self.isConnectCam = false
-            if !self.isConnectCoord {
-                self.socket.disconnect()
-            }
-            sender.setTitle("Connect Cam", for: [])
-        }
-        
-    }
-    
     @IBAction func connectCoord(_ sender: UIButton) {
         
-        if sender.title(for: []) == "Connect Coord" {
-            if !self.isConnectCam {
-                self.socket.connect()
-            }
-            self.isConnectCoord = true
-            sender.setTitle("Disconnect Coord", for: [])
+        if self.isConnect {
+            //Close connection with Redis
+            self.isConnect = false
+            sender.setTitle("Connect", for: [])
         } else {
-            if !self.isConnectCam {
-                self.socket.disconnect()
+            //Establish connection with Redis
+            
+            redis.connect(host: self.portIP.text!, port: Int32(self.port.text!) ?? 0) { (redisError: NSError?) in
+            //redis.connect(host: "192.168.1.5", port: 6379) { (redisError: NSError?) in
+                
+                //Check for if host and port are incorrect0
+                if let error = redisError {
+                    print(error)
+                    return
+                }
+                
+                /*
+                //If connection to Redis successful then pass in the password
+                else {
+                    
+                    let password = "pf60fdc52fbcdbef653d7936622dd3b332fec2da875a2e928a2bdd8d15eb7edb0"
+                    redis.auth(password) { (pwdError: NSError?) in
+                        if let errorPwd = pwdError {
+                            print(errorPwd)
+                        }
+                        else {
+                            print("Password Authentication Is Successful")
+                        }
+                    }
+                    
+                    print("Established Connection to Redis")
+                }
+                */
+                self.labelConnectedIP.text = "ip: \(self.portIP.text!):\(self.port.text!)"
             }
-            self.isConnectCoord = false
-            sender.setTitle("Connect Coord", for: [])
+            
+            self.isConnect = true
+            sender.setTitle("Disconnect", for: [])
         }
         
     }
     
     func session(_ session: ARSession, didUpdate frame: ARFrame) {
         
-        if self.isConnectCoord {
+        if self.isConnect {
             
             let transform = SCNMatrix4(frame.camera.transform)
             let orientation = SCNVector3(-transform.m31, -transform.m32, transform.m33)
             let location = SCNVector3(transform.m41, transform.m42, transform.m43)
-            self.labelOrientation.text = "(\(orientation.x), \(orientation.y), \(orientation.z))"
-            self.labelCoordinates.text = "(\(location.x), \(location.y), \(location.z))"
+            //self.labelOrientation.text = "(\(orientation.x), \(orientation.y), \(orientation.z))"
+            //self.labelCoordinates.text = "(\(location.x), \(location.y), \(location.z))"
             
-            self.socket.emit("position", "{\"x\": \(location.x), \"y\": 0, \"z\": \(location.z)}")
+            
+            var cgImage: CGImage?
+            VTCreateCGImageFromCVPixelBuffer(frame.capturedImage, options: .none, imageOut: &cgImage)
+            let uiImage = UIImage(cgImage: cgImage!)
+            
+            let rect = CGRect(x: 0.0, y: 0.0, width: 512, height: 256)
+            UIGraphicsBeginImageContext(rect.size)
+            uiImage.draw(in: rect)
+            let image = UIGraphicsGetImageFromCurrentImageContext()
+            let imageData = image!.jpegData(compressionQuality: 0.25)!.base64EncodedString()
+            UIGraphicsEndImageContext()
+            
+            //self.socket.emit("data", "{\"data\": {\"position\": {\"x\": \(location.x), \"y\": 0, \"z\": \(location.z)}, \"img\": \"\(imageData)\"}}")
+            let pushData = "{\"data\": {\"position\": {\"x\": \(location.x), \"y\": 0, \"z\": \(location.z)}, \"img\": \"\(imageData)\"}}"
+            
+            redis.rpush("vroomba", values: pushData, callback: { (result, message) in
+                //print("\(result) : \(message)")
+            })
         }
         
-        if self.isConnectCam {
-             var cgImage: CGImage?
-             VTCreateCGImageFromCVPixelBuffer(frame.capturedImage, options: .none, imageOut: &cgImage)
-             let uiImage = UIImage(cgImage: cgImage!)
-             
-             let rect = CGRect(x: 0.0, y: 0.0, width: 512, height: 256)
-             UIGraphicsBeginImageContext(rect.size)
-             uiImage.draw(in: rect)
-             let image = UIGraphicsGetImageFromCurrentImageContext()
-             let imageData = image!.jpegData(compressionQuality: 0.2)!.base64EncodedString()
-             UIGraphicsEndImageContext()
- 
-            
-            //let image: UIImage? = pixelBuffertoUIImage(pixelBuffer: frame.capturedImage, scale: 0.15)
-            //let imageData: String = image!.jpegData(compressionQuality: 0.25)!.base64EncodedString()
-            
-            self.socket.emit("camera", "{\"img\": \"\(imageData)\"}")
-        }
-        
-    }
-    
-    func pixelBuffertoUIImage(pixelBuffer: CVPixelBuffer, scale: CGFloat) -> UIImage? {
-        
-        let size = CGSize(width: CGFloat(CVPixelBufferGetWidth(pixelBuffer)) * scale,
-                          height: CGFloat(CVPixelBufferGetHeight(pixelBuffer)) * scale)
-        let uiImage = UIImage(ciImage: CIImage(cvPixelBuffer: pixelBuffer, options: nil))
-        let renderer = UIGraphicsImageRenderer(size: size)
-        return renderer.image { (context) in
-            uiImage.draw (in: CGRect(origin: .zero, size: size))
-        }
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
-        print("CONNECTING NEW SOCKET: " + self.socketIP.text!)
-        self.manager = SocketManager(socketURL: URL(string: self.socketIP.text!)!, config: [.log(true), .compress])
-        self.socket = manager.defaultSocket
+        print("CONNECTING NEW PORT: " + self.portIP.text! + ":" + self.port.text!)
         return true
     }
 

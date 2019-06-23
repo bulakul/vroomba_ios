@@ -22,35 +22,41 @@
                                 <rect key="frame" x="0.0" y="0.0" width="414" height="862"/>
                             </arscnView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="(x, y, z)" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="g87-jM-nbz">
-                                <rect key="frame" x="344" y="709" width="58.5" height="21.5"/>
+                                <rect key="frame" x="344" y="735" width="58.5" height="21.5"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="(x, y, z)" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="S87-Bs-X8T">
-                                <rect key="frame" x="344" y="739" width="59" height="22"/>
+                                <rect key="frame" x="344" y="766" width="59" height="22"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HbE-j2-obD">
-                                <rect key="frame" x="10" y="798" width="111" height="34"/>
+                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xhX-87-5Fz">
+                                <rect key="frame" x="297" y="802" width="106" height="30"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="18"/>
-                                <state key="normal" title="Connect Cam"/>
+                                <state key="normal" title="Reset World"/>
                                 <connections>
-                                    <action selector="connectCam:" destination="BV1-FR-VrT" eventType="touchUpInside" id="SV2-Em-VQ8"/>
+                                    <action selector="resetWorld:" destination="BV1-FR-VrT" eventType="touchUpInside" id="Eoc-mH-ibU"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="y1D-hQ-Ack">
-                                <rect key="frame" x="10" y="769" width="124" height="36"/>
+                                <rect key="frame" x="11" y="796" width="124" height="36"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="18"/>
-                                <state key="normal" title="Connect Coord"/>
+                                <state key="normal" title="Connect"/>
                                 <connections>
                                     <action selector="connectCoord:" destination="BV1-FR-VrT" eventType="touchUpInside" id="FW6-4G-G8u"/>
                                 </connections>
                             </button>
-                            <textField opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="http://0.0.0.0:3000" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="oxs-Qk-QBt">
-                                <rect key="frame" x="171" y="73" width="233" height="30"/>
+                            <textField opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="ip" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="7so-jM-ItQ">
+                                <rect key="frame" x="171" y="74" width="233" height="30"/>
+                                <nil key="textColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <textField opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="port" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="oxs-Qk-QBt">
+                                <rect key="frame" x="171" y="113" width="233" height="30"/>
                                 <nil key="textColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                 <textInputTraits key="textInputTraits"/>
@@ -58,41 +64,43 @@
                                     <outlet property="delegate" destination="BV1-FR-VrT" id="TDc-mb-T9K"/>
                                 </connections>
                             </textField>
-                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xhX-87-5Fz">
-                                <rect key="frame" x="297" y="772" width="106" height="30"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Connected to" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="h7W-aP-Arc">
+                                <rect key="frame" x="171" y="156" width="233" height="22"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="18"/>
-                                <state key="normal" title="Reset World"/>
-                                <connections>
-                                    <action selector="resetWorld:" destination="BV1-FR-VrT" eventType="touchUpInside" id="Eoc-mH-ibU"/>
-                                </connections>
-                            </button>
+                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="fQZ-KI-GVf" firstAttribute="trailing" secondItem="g87-jM-nbz" secondAttribute="trailing" constant="10" id="2Sq-kH-aFP"/>
+                            <constraint firstItem="7so-jM-ItQ" firstAttribute="top" secondItem="fQZ-KI-GVf" secondAttribute="top" constant="30" id="98u-Lv-Gpp"/>
+                            <constraint firstItem="fQZ-KI-GVf" firstAttribute="bottom" secondItem="y1D-hQ-Ack" secondAttribute="bottom" constant="30" id="BNa-qA-NvT"/>
+                            <constraint firstItem="h7W-aP-Arc" firstAttribute="top" secondItem="oxs-Qk-QBt" secondAttribute="bottom" constant="10" id="ELX-bg-KaR"/>
                             <constraint firstItem="y1D-hQ-Ack" firstAttribute="leading" secondItem="fQZ-KI-GVf" secondAttribute="leading" constant="10" id="F2p-3e-8Mj"/>
-                            <constraint firstItem="fQZ-KI-GVf" firstAttribute="bottom" secondItem="HbE-j2-obD" secondAttribute="bottom" constant="30" id="F6U-pg-IHn"/>
                             <constraint firstItem="BrB-h1-WRS" firstAttribute="leading" secondItem="fQZ-KI-GVf" secondAttribute="leading" id="GsS-dJ-CKf"/>
-                            <constraint firstItem="oxs-Qk-QBt" firstAttribute="top" secondItem="fQZ-KI-GVf" secondAttribute="top" constant="30" id="JpX-0r-tw0"/>
-                            <constraint firstItem="HbE-j2-obD" firstAttribute="top" secondItem="y1D-hQ-Ack" secondAttribute="bottom" constant="5" id="KVi-0R-IiA"/>
-                            <constraint firstItem="HbE-j2-obD" firstAttribute="leading" secondItem="fQZ-KI-GVf" secondAttribute="leading" constant="10" id="QK0-sA-BWm"/>
                             <constraint firstItem="fQZ-KI-GVf" firstAttribute="trailing" secondItem="S87-Bs-X8T" secondAttribute="trailing" constant="10" id="UtU-em-CL2"/>
                             <constraint firstItem="BrB-h1-WRS" firstAttribute="bottom" secondItem="fQZ-KI-GVf" secondAttribute="bottom" id="VpT-BR-CcM"/>
                             <constraint firstItem="BrB-h1-WRS" firstAttribute="trailing" secondItem="fQZ-KI-GVf" secondAttribute="trailing" id="XyZ-9z-H8e"/>
-                            <constraint firstItem="fQZ-KI-GVf" firstAttribute="bottom" secondItem="xhX-87-5Fz" secondAttribute="bottom" constant="70" id="cxQ-wh-jvZ"/>
+                            <constraint firstItem="fQZ-KI-GVf" firstAttribute="bottom" secondItem="xhX-87-5Fz" secondAttribute="bottom" constant="30" id="cxQ-wh-jvZ"/>
+                            <constraint firstItem="fQZ-KI-GVf" firstAttribute="trailing" secondItem="h7W-aP-Arc" secondAttribute="trailing" constant="10" id="ezV-Ec-qvL"/>
+                            <constraint firstItem="oxs-Qk-QBt" firstAttribute="top" secondItem="7so-jM-ItQ" secondAttribute="bottom" constant="10" id="fEq-xX-uk6"/>
                             <constraint firstItem="xhX-87-5Fz" firstAttribute="top" secondItem="S87-Bs-X8T" secondAttribute="bottom" constant="10" id="hdS-BH-sj7"/>
                             <constraint firstItem="fQZ-KI-GVf" firstAttribute="trailing" secondItem="oxs-Qk-QBt" secondAttribute="trailing" constant="10" id="oi7-ak-SUs"/>
                             <constraint firstItem="S87-Bs-X8T" firstAttribute="top" secondItem="g87-jM-nbz" secondAttribute="bottom" constant="10" id="pUu-hD-s8f"/>
                             <constraint firstItem="fQZ-KI-GVf" firstAttribute="trailing" secondItem="xhX-87-5Fz" secondAttribute="trailing" constant="10" id="rDX-Kl-H0g"/>
                             <constraint firstItem="BrB-h1-WRS" firstAttribute="top" secondItem="U0K-SW-4ec" secondAttribute="top" id="rJc-2c-zQA"/>
+                            <constraint firstItem="fQZ-KI-GVf" firstAttribute="trailing" secondItem="7so-jM-ItQ" secondAttribute="trailing" constant="10" id="w7P-Kq-rT8"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="fQZ-KI-GVf"/>
                     </view>
                     <connections>
+                        <outlet property="labelConnectedIP" destination="h7W-aP-Arc" id="Pg9-4s-9jZ"/>
                         <outlet property="labelCoordinates" destination="g87-jM-nbz" id="vG5-CA-lY7"/>
                         <outlet property="labelOrientation" destination="S87-Bs-X8T" id="7YJ-yz-juG"/>
+                        <outlet property="port" destination="oxs-Qk-QBt" id="t01-gg-Hbo"/>
+                        <outlet property="portIP" destination="7so-jM-ItQ" id="7NU-9Y-z5L"/>
                         <outlet property="sceneView" destination="BrB-h1-WRS" id="5nT-qQ-ynl"/>
-                        <outlet property="socketIP" destination="oxs-Qk-QBt" id="WOv-XA-LXn"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="SZV-WD-TEh" sceneMemberID="firstResponder"/>
