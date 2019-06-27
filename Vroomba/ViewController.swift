@@ -24,10 +24,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, UI
     
     let ARConfig = ARWorldTrackingConfiguration()
     let redis = Redis()
+    let sampleRate: Int = 5
+    var sampleTracker: Int = 1
     var isConnect: Bool = false
-    let bufferSize: Int = 3
-    var bufferCounter: Int = 0
-    var pushData: Array<String> = []
+    //var pushData: Array<String> = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -36,6 +36,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, UI
         //self.sceneView.debugOptions = [ARSCNDebugOptions.showWorldOrigin]
         self.sceneView.session.run(self.ARConfig)
         self.sceneView.session.delegate = self
+        self.portIP.delegate = self
         self.port.delegate = self
         
         UIApplication.shared.isIdleTimerDisabled = true
@@ -119,7 +120,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, UI
                 */
                 self.labelConnectedIP.text = "ip: \(self.portIP.text!):\(self.port.text!)"
             }
-            
+ 
             self.isConnect = true
             sender.setTitle("Disconnect", for: [])
         }
@@ -130,43 +131,55 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, UI
         
         if self.isConnect {
             
-            let transform = SCNMatrix4(frame.camera.transform)
-            let orientation = SCNVector3(-transform.m31, -transform.m32, transform.m33)
-            let location = SCNVector3(transform.m41, transform.m42, transform.m43)
-            //self.labelOrientation.text = "(\(orientation.x), \(orientation.y), \(orientation.z))"
-            //self.labelCoordinates.text = "(\(location.x), \(location.y), \(location.z))"
-            
-            
-            var cgImage: CGImage?
-            VTCreateCGImageFromCVPixelBuffer(frame.capturedImage, options: .none, imageOut: &cgImage)
-            let uiImage = UIImage(cgImage: cgImage!)
-            
-            let rect = CGRect(x: 0.0, y: 0.0, width: 256, height: 128)
-            UIGraphicsBeginImageContext(rect.size)
-            uiImage.draw(in: rect)
-            let image = UIGraphicsGetImageFromCurrentImageContext()
-            let imageData = image!.jpegData(compressionQuality: 0.25)!.base64EncodedString()
-            UIGraphicsEndImageContext()
-            
-            //self.socket.emit("data", "{\"data\": {\"position\": {\"x\": \(location.x), \"y\": 0, \"z\": \(location.z)}, \"img\": \"\(imageData)\"}}")
-            
-            if self.bufferCounter < self.bufferSize {
-                self.pushData.append("{\"data\": {\"position\": {\"x\": \(location.x), \"y\": 0, \"z\": \(location.z)}, \"img\": \"\(imageData)\"}}")
-                self.bufferCounter = self.bufferCounter + 1
-            } else {
-                redis.rpush("vroomba", values: self.pushData[0], self.pushData[1], self.pushData[2], callback: { (result, message) in
+            if sampleTracker == (sampleRate - 1) {
+                
+                let transform = SCNMatrix4(frame.camera.transform)
+                let orientation = SCNVector3(-transform.m31, -transform.m32, transform.m33)
+                let location = SCNVector3(transform.m41, transform.m42, transform.m43)
+                //self.labelOrientation.text = "(\(orientation.x), \(orientation.y), \(orientation.z))"
+                //self.labelCoordinates.text = "(\(location.x), \(location.y), \(location.z))"
+                
+                //self.pushData.append("{\"data\": {\"type\": 1, \"position\": {\"x\": \(location.x), \"y\": 0, \"z\": \(location.z)}}}")
+                redis.rpush("vroomba", values: "{\"data\": {\"type\": 1, \"position\": {\"x\": \(location.x), \"y\": 0, \"z\": \(location.z)}}}", callback: { (result, message) in
                     //print("\(result) : \(message)")
                 })
-                self.bufferCounter = 0
-                self.pushData.removeAll()
+                
             }
+            
+            if (sampleTracker == sampleRate) {
+                
+                var cgImage: CGImage?
+                VTCreateCGImageFromCVPixelBuffer(frame.capturedImage, options: .none, imageOut: &cgImage)
+                let uiImage = UIImage(cgImage: cgImage!)
+                let imageData = uiImage.jpegData(compressionQuality: 0.05)!.base64EncodedString()
+                
+    //            let rect = CGRect(x: 0.0, y: 0.0, width: 256, height: 128)
+    //            UIGraphicsBeginImageContext(rect.size)
+    //            uiImage.draw(in: rect)
+    //            let image = UIGraphicsGetImageFromCurrentImageContext()
+    //            let imageData = image!.jpegData(compressionQuality: 0.25)!.base64EncodedString()
+    //            UIGraphicsEndImageContext()
+                
+                //self.socket.emit("data", "{\"data\": {\"position\": {\"x\": \(location.x), \"y\": 0, \"z\": \(location.z)}, \"img\": \"\(imageData)\"}}")
+                
+                redis.rpush("vroomba", values: "{\"data\": {\"type\": 2, \"img\": \"\(imageData)\"}}", callback: { (result, message) in
+                    //print("\(result) : \(message)")
+                })
+                
+                sampleTracker = 0
+                //self.pushData.removeAll()
+                
+            }
+            
+            sampleTracker = sampleTracker + 1
+        
         }
         
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
-        print("CONNECTING NEW PORT: " + self.portIP.text! + ":" + self.port.text!)
+        print("SWITCH TO IP: " + self.portIP.text! + ":" + self.port.text!)
         return true
     }
 
