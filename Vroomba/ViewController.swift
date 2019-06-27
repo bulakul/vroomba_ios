@@ -25,6 +25,9 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, UI
     let ARConfig = ARWorldTrackingConfiguration()
     let redis = Redis()
     var isConnect: Bool = false
+    let bufferSize: Int = 3
+    var bufferCounter: Int = 0
+    var pushData: Array<String> = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -138,7 +141,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, UI
             VTCreateCGImageFromCVPixelBuffer(frame.capturedImage, options: .none, imageOut: &cgImage)
             let uiImage = UIImage(cgImage: cgImage!)
             
-            let rect = CGRect(x: 0.0, y: 0.0, width: 512, height: 256)
+            let rect = CGRect(x: 0.0, y: 0.0, width: 256, height: 128)
             UIGraphicsBeginImageContext(rect.size)
             uiImage.draw(in: rect)
             let image = UIGraphicsGetImageFromCurrentImageContext()
@@ -146,11 +149,17 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate, UI
             UIGraphicsEndImageContext()
             
             //self.socket.emit("data", "{\"data\": {\"position\": {\"x\": \(location.x), \"y\": 0, \"z\": \(location.z)}, \"img\": \"\(imageData)\"}}")
-            let pushData = "{\"data\": {\"position\": {\"x\": \(location.x), \"y\": 0, \"z\": \(location.z)}, \"img\": \"\(imageData)\"}}"
             
-            redis.rpush("vroomba", values: pushData, callback: { (result, message) in
-                //print("\(result) : \(message)")
-            })
+            if self.bufferCounter < self.bufferSize {
+                self.pushData.append("{\"data\": {\"position\": {\"x\": \(location.x), \"y\": 0, \"z\": \(location.z)}, \"img\": \"\(imageData)\"}}")
+                self.bufferCounter = self.bufferCounter + 1
+            } else {
+                redis.rpush("vroomba", values: self.pushData[0], self.pushData[1], self.pushData[2], callback: { (result, message) in
+                    //print("\(result) : \(message)")
+                })
+                self.bufferCounter = 0
+                self.pushData.removeAll()
+            }
         }
         
     }
